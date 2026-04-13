@@ -32,10 +32,10 @@ export const PostDetails: React.FC<Props> = ({ post }) => {
   }, [dispatch, post.id]);
 
   const handleAddComment = async ({ name, email, body }: CommentData) => {
-    await dispatch(addComment({ name, email, body, postId: post.id }));
+    await dispatch(addComment({ name, email, body, postId: post.id })).unwrap();
   };
 
-  const handleDeleteComment = async (commentId: number) => {
+  const handleDeleteComment = (commentId: number) => {
     dispatch(deleteComment(commentId));
   };
 

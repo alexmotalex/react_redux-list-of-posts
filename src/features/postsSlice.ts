@@ -15,7 +15,7 @@ const initialState: PostsState = {
   hasError: false,
 };
 
-export const fetchPosts = createAsyncThunk<Post[], number>(
+export const fetchPosts = createAsyncThunk(
   'posts/fetch',
   async (userId: number) => {
     const postsFromServer = await getUserPosts(userId);
@@ -24,7 +24,7 @@ export const fetchPosts = createAsyncThunk<Post[], number>(
   },
 );
 
-export const postsSlice = createSlice({
+const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {},
@@ -47,3 +47,4 @@ export const postsSlice = createSlice({
 });
 
 export const selectPostsState = (state: RootState) => state.posts;
+export default postsSlice.reducer;

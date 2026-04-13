@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/indent */
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../app/store';
 import {
   createComment,
   getPostComments,
   deleteComment as deleteCommentFromServer,
 } from '../api/comments';
-import { Comment, CommentData } from '../types/Comment';
+import { Comment } from '../types/Comment';
 
 type CommentsState = {
   items: Comment[];
@@ -29,19 +29,14 @@ export const fetchComments = createAsyncThunk<Comment[], number>(
   },
 );
 
-export const addComment = createAsyncThunk<
-  Comment,
-  CommentData & { postId: number }
->('comments/add', async ({ name, email, body, postId }) => {
-  const newComment = await createComment({
-    name,
-    email,
-    body,
-    postId,
-  });
+export const addComment = createAsyncThunk(
+  'comments/add',
+  async (data: Omit<Comment, 'id'>) => {
+    const comment = await createComment(data);
 
-  return newComment;
-});
+    return comment;
+  },
+);
 
 export const deleteComment = createAsyncThunk<number, number>(
   'comments/delete',
@@ -52,7 +47,7 @@ export const deleteComment = createAsyncThunk<number, number>(
   },
 );
 
-export const commentsSlice = createSlice({
+const commentsSlice = createSlice({
   name: 'comments',
   initialState,
   reducers: {},
@@ -64,23 +59,33 @@ export const commentsSlice = createSlice({
         state.loaded = false;
         state.hasError = false;
       })
-      .addCase(fetchComments.fulfilled, (state, action) => {
-        state.loaded = true;
-        state.items = action.payload;
-      })
+      .addCase(
+        fetchComments.fulfilled,
+        (state, action: PayloadAction<Comment[]>) => {
+          state.loaded = true;
+          state.items = action.payload;
+        },
+      )
       .addCase(fetchComments.rejected, state => {
         state.hasError = true;
         state.loaded = true;
       })
-      .addCase(addComment.fulfilled, (state, action) => {
-        state.items.push(action.payload);
-      })
-      .addCase(deleteComment.fulfilled, (state, action) => {
-        state.items = state.items.filter(
-          comment => comment.id !== action.payload,
-        );
-      });
+      .addCase(
+        addComment.fulfilled,
+        (state, action: PayloadAction<Comment>) => {
+          state.items.push(action.payload);
+        },
+      )
+      .addCase(
+        deleteComment.fulfilled,
+        (state, action: PayloadAction<number>) => {
+          state.items = state.items.filter(
+            comment => comment.id !== action.payload,
+          );
+        },
+      );
   },
 });
 
 export const selectCommentsState = (state: RootState) => state.comments;
+export default commentsSlice.reducer;

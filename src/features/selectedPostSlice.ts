@@ -4,7 +4,7 @@ import { RootState } from '../app/store';
 
 const initialState = null as Post | null;
 
-export const selectedPostSlice = createSlice({
+const selectedPostSlice = createSlice({
   name: 'selectedPost',
   initialState,
   reducers: {
@@ -16,3 +16,4 @@ export const selectedPostSlice = createSlice({
 
 export const { setSelectPost } = selectedPostSlice.actions;
 export const selectSelectedPost = (state: RootState) => state.selectedPost;
+export default selectedPostSlice.reducer;
